@@ -17,6 +17,24 @@ const DragAndDropCalendar = withDragAndDrop(BigCalendar);
 
 const allViews = Object.keys(BigCalendar.Views).map((k) => BigCalendar.Views[k]);
 
+// obiekt z nazwami przycisków do manipulowania widokami
+const messages = {
+  allDay: "Cały dzień",
+  previous: "Poprzedni",
+  next: "Następny",
+  today: "Dziś",
+  month: "Miesiąc",
+  week: "Tydzień",
+  work_week: "Tydzień pracujący",
+  day: "Dzień",
+  agenda: "Terminarz",
+  date: "Data",
+  time: "Czas",
+  event: "Wydarzenie",
+  showMore: total => `+ Pokaż więcej (${total})`
+};
+
+
 class CalendarApp extends React.Component {
   constructor(props) {
     super(props)
@@ -94,7 +112,7 @@ class CalendarApp extends React.Component {
         defaultDate={new Date()}
         views={allViews}
         // step={60}
-        style={{ height: "100vh" }}
+        messages={messages}
       />
     )
   }
