@@ -6,7 +6,6 @@ import moment from "moment";
 import "moment/locale/pl";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 
-
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 
@@ -15,7 +14,7 @@ const localizer = BigCalendar.momentLocalizer(moment);
 
 const DragAndDropCalendar = withDragAndDrop(BigCalendar);
 
-const allViews = Object.keys(BigCalendar.Views).map((k) => BigCalendar.Views[k]);
+const allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k]);
 
 // obiekt z nazwami przycisków do manipulowania widokami
 const messages = {
@@ -31,75 +30,92 @@ const messages = {
   date: "Data",
   time: "Czas",
   event: "Wydarzenie",
+  noEventsInRange: "Brak wydarzeń",
   showMore: total => `+ Pokaż więcej (${total})`
 };
 
-
 class CalendarApp extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
-      events: events,
-    }
+      events: events
+    };
   }
+
+  // przekazywanie randomowych styli do eventow
+  eventStyleGetter = ({ event, start, end, isSelected }) => {
+    console.log(event);
+    let newStyle = {
+      backgroundColor: "lightblue",
+      borderRadius: "0px",
+      opacity: 0.8,
+      color: "black",
+      border: "0px",
+      display: "block"
+    };
+    return {
+      style: newStyle
+    };
+  };
 
   moveEvent = ({ event, start, end, isAllDay: droppedOnAllDaySlot }) => {
-    const { events } = this.state
+    const { events } = this.state;
 
-    const idx = events.indexOf(event)
-    let allDay = event.allDay
+    const idx = events.indexOf(event);
+    let allDay = event.allDay;
 
     if (!event.allDay && droppedOnAllDaySlot) {
-      allDay = true
+      allDay = true;
     } else if (event.allDay && !droppedOnAllDaySlot) {
-      allDay = false
+      allDay = false;
     }
 
-    const updatedEvent = { ...event, start, end, allDay }
+    const updatedEvent = { ...event, start, end, allDay };
 
-    const nextEvents = [...events]
-    nextEvents.splice(idx, 1, updatedEvent)
+    const nextEvents = [...events];
+    nextEvents.splice(idx, 1, updatedEvent);
 
     this.setState({
-      events: nextEvents,
-    })
+      events: nextEvents
+    });
 
     // alert(`${event.title} was dropped onto ${updatedEvent.start}`)
-  }
+  };
 
   resizeEvent = ({ event, start, end }) => {
-    const { events } = this.state
+    const { events } = this.state;
 
     const nextEvents = events.map(existingEvent => {
-      return existingEvent.id === event.id
-        ? { ...existingEvent, start, end }
-        : existingEvent
-    })
+      return existingEvent.id === event.id ? { ...existingEvent, start, end } : existingEvent;
+    });
 
     this.setState({
-      events: nextEvents,
-    })
+      events: nextEvents
+    });
 
     //alert(`${event.title} was resized to ${start}-${end}`)
-  }
+  };
 
-  newEvent = (event) => {
-    // let idList = this.state.events.map(a => a.id)
-    // let newId = Math.max(...idList) + 1
-    // let hour = {
-    //   id: newId,
-    //   title: 'New Event',
-    //   allDay: event.slots.length == 1,
-    //   start: event.start,
-    //   end: event.end,
-    // }
-    // this.setState({
-    //   events: this.state.events.concat([hour]),
-    // })
-  }
+
+  // dodaj nowy event 
+  handleSelect = ({ start, end }) => {
+    const title = window.prompt("Podaj nazwę eventu");
+    console.log(events);
+    if (title)
+      this.setState({
+        events: [
+          ...this.state.events,
+          {
+            start,
+            end,
+            title
+          }
+        ]
+      });
+  };
 
   render() {
-    return (
+    const PokaDane = (
       <DragAndDropCalendar
         selectable
         localizer={localizer}
@@ -107,14 +123,20 @@ class CalendarApp extends React.Component {
         onEventDrop={this.moveEvent}
         resizable
         onEventResize={this.resizeEvent}
-        onSelectSlot={this.newEvent}
+        onSelectSlot={this.handleSelect}
         defaultView={BigCalendar.Views.MONTH}
         defaultDate={new Date()}
         views={allViews}
+        startAccessor="start"
+        endAccessor="end"
         // step={60}
+        style={{ height: "100vh" }}
         messages={messages}
+        eventPropGetter={this.eventStyleGetter}
       />
-    )
+    );
+    console.log(PokaDane);
+    return PokaDane;
   }
 }
 
